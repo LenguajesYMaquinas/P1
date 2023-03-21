@@ -233,14 +233,14 @@ public class Robot implements RobotConstants {
         x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[10] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-                                                                    world.moveForward(x,false);
+                                                                              world.moveForward(x,false);
       break;
     case ASSIGNTO:
       jj_consume_token(ASSIGNTO);
@@ -257,7 +257,7 @@ public class Robot implements RobotConstants {
         x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[11] = jj_gen;
@@ -270,14 +270,14 @@ public class Robot implements RobotConstants {
         y = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        y = getVariableValue();
         break;
       default:
         jj_la1[12] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-                                                                                                              world.setPostion(x,y);
+                                                                                                                                  world.setPostion(x,y);
       break;
     case TURN:
       jj_consume_token(TURN);
@@ -328,7 +328,7 @@ public class Robot implements RobotConstants {
         x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[15] = jj_gen;
@@ -339,11 +339,11 @@ public class Robot implements RobotConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case BALLOONS:
         jj_consume_token(BALLOONS);
-                                                                                           world.putBalloons(x);
+                                                                                                     world.putBalloons(x);
         break;
       case CHIPS:
         jj_consume_token(CHIPS);
-                                                                                                                               world.putChips(x);
+                                                                                                                                         world.putChips(x);
         break;
       default:
         jj_la1[16] = jj_gen;
@@ -359,7 +359,7 @@ public class Robot implements RobotConstants {
         x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[17] = jj_gen;
@@ -370,11 +370,11 @@ public class Robot implements RobotConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case BALLOONS:
         jj_consume_token(BALLOONS);
-                                                                                            world.grabBalloons(x);
+                                                                                                      world.grabBalloons(x);
         break;
       case CHIPS:
         jj_consume_token(CHIPS);
-                                                                                                                                 world.pickChips(x);
+                                                                                                                                           world.pickChips(x);
         break;
       default:
         jj_la1[18] = jj_gen;
@@ -387,10 +387,10 @@ public class Robot implements RobotConstants {
       jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case NUMBER:
-        jj_consume_token(NUMBER);
+        x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[19] = jj_gen;
@@ -422,10 +422,10 @@ public class Robot implements RobotConstants {
       jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case NUMBER:
-        jj_consume_token(NUMBER);
+        x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[21] = jj_gen;
@@ -457,10 +457,10 @@ public class Robot implements RobotConstants {
       jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case NUMBER:
-        jj_consume_token(NUMBER);
+        x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[23] = jj_gen;
@@ -492,10 +492,10 @@ public class Robot implements RobotConstants {
       jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case NUMBER:
-        jj_consume_token(NUMBER);
+        x = charNumToInt();
         break;
       case STRING:
-        jj_consume_token(STRING);
+        x = getVariableValue();
         break;
       default:
         jj_la1[25] = jj_gen;
@@ -939,6 +939,24 @@ public class Robot implements RobotConstants {
                 }
                 /*System.out.println(Robot.variables.toString());*/
 
+  }
+
+  final public int getVariableValue() throws ParseException, Error {
+        int variableValue = 0;
+        String variableName = "";
+    jj_consume_token(STRING);
+                variableName=token.image;
+                if(Robot.variables.containsKey(variableName)) {
+                        variableValue = Robot.variables.get(variableName);
+                }
+                else{
+                        {if (true) throw new Error("The variable " + variableName +  " has not been declared.");}
+                }
+                if(variableValue == -1) {
+                        {if (true) throw new Error("The variable " + variableName +  " has not been initialized.");}
+                }
+                {if (true) return variableValue;}
+    throw new Error("Missing return statement in function");
   }
 
   /** Generated Token Manager. */
