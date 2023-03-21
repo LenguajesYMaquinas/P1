@@ -18,9 +18,14 @@ import java.awt.Point;
 import java.io.*;
 import java.util.Vector;
 import java.util.LinkedList;
+import java.util.HashMap;
+import java.lang.String;
+import java.lang.Integer;
 
 @SuppressWarnings("serial")
 public class Robot{
+
+	public static HashMap<String, Integer> variables = new HashMap<String, Integer>();
 
 	private RobotWorldDec world;
 	
@@ -160,7 +165,7 @@ void program() :
 void variablesDeclaration() :
 {}
 {
-  < VARS > <STRING > (< COMMA > < STRING >)* < SEMICOLON >
+  < VARS >  saveVariable()  (< COMMA > saveVariable())* < SEMICOLON >
 }
 
 void proceduresDeclaration() :
@@ -187,19 +192,19 @@ void commandInstruction() :
 {
   int x=0;
   int y=0;
+  String text = "";
 }
 {
-		< HOP > < LPARENTHESIS > x=num() < RPARENTHESIS > {world.moveForward(x,true);}
-	| 	< POP > < LPARENTHESIS > x=num() < RPARENTHESIS >  {world.popBalloons(x);}
+		< HOP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS > {world.moveForward(x,true);}
+	| 	< POP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS >  {world.popBalloons(x);}
 	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS > {world.turnRight();}
-	|	< GO > < LPARENTHESIS > (x=num() | < STRING >) < COMMA > (y=num() | < STRING >) < RPARENTHESIS > {world.setPostion(x,y);} 
-	|  	< MOVE > < COLON > (x=num() | < STRING >) {world.moveForward(x,false);} 
-	| 	< ASSIGNTO > < COLON > < NUMBER > < COMMA > < STRING >
-	| 	< GOTO > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NUMBER > | < STRING >)
+	|  	< MOVE > < COLON > (x=charNumToInt() | < STRING >) {world.moveForward(x,false);} 
+	| 	< ASSIGNTO > < COLON > x=charNumToInt() < COMMA > saveValueToVariable(x)
+	| 	< GOTO > < COLON > (x=charNumToInt() | < STRING >) < COMMA > (y=charNumToInt() | < STRING >) {world.setPostion(x,y);} 
 	| 	< TURN > < COLON > (< LEFT > | < RIGHT > | < AROUND >)
 	| 	< FACE > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
-	| 	< PUT > < COLON > (< NUMBER > | < STRING >) < COMMA > (< BALLOONS > | < CHIPS >)
-	| 	< PICK > < COLON > (< NUMBER > | < STRING >) < COMMA > (< BALLOONS > | < CHIPS >)
+	| 	< PUT > < COLON > (x=charNumToInt() | < STRING >) < COMMA > (< BALLOONS > {world.putBalloons(x);} | < CHIPS > {world.putChips(x);})
+	| 	< PICK > < COLON > (x=charNumToInt() | < STRING >) < COMMA > (< BALLOONS > {world.grabBalloons(x);} | < CHIPS > {world.pickChips(x);})
 	| 	< MOVETOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
 	| 	< JUMPTOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
 	| 	< MOVEINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
@@ -302,30 +307,12 @@ void procedureCall() :
 	< STRING > < COLON > [(< STRING > | < NUMBER >) (< COMMA > (< STRING > | < NUMBER >))*]
 }
 
-void put() :
-{
-  int f=1;	
-}
-{
-		( <CHIPS>    "," f=num() {world.putChips(f); salida = "Command:  Put Chips"; })
-	|  	( <BALLOONS>   "," f=num() {world.putBalloons(f); salida = "Command:  Put Balloons";})	 
-}
-
-void get() :
-{
-	int f=1;	
-}
-{
-		( <CHIPS>   "," f=num() {world.pickChips(f);salida = "Command:  Pick chips";})
-	|  	( <BALLOONS>   "," f=num() {world.grabBalloons(f);salida="Command:  Pick balloons";})	 
-}
-
-int num() throws Error:
+int charNumToInt() throws Error:
 {	
 	int total=1;
 }
 {
-	<NUMBER>
+	< NUMBER >
 	{
 		try{
 			total = Integer.parseInt(token.image);
@@ -334,5 +321,36 @@ int num() throws Error:
 			throw new Error("Number out of bounds: "+token.image+" !!");
 		}
 		return total;
+	}
+}
+
+void saveVariable():
+{
+	String variableName = "";
+}
+{
+	< STRING >
+	{
+		variableName=token.image;
+		Robot.variables.put(variableName, -1);
+		/*System.out.println(Robot.variables.keySet());*/
+	}
+}
+
+void saveValueToVariable(int value) throws Error:
+{
+	String variableName = "";
+}
+{
+	< STRING >
+	{
+		variableName=token.image;
+		if(Robot.variables.replace(variableName, value) != null) {
+		  Robot.variables.replace(variableName, value);
+		}
+		else{
+		  throw new Error("The variable " + variableName +  " has not been declared.");
+		}
+		/*System.out.println(Robot.variables.toString());*/
 	}
 }
