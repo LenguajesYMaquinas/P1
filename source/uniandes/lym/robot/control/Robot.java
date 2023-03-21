@@ -10,11 +10,15 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import java.lang.String;
 import java.lang.Integer;
-
+import java.util.ArrayList;
 @SuppressWarnings("serial")
 public class Robot implements RobotConstants {
 
         public static HashMap<String, Integer> variables = new HashMap<String, Integer>();
+        public static HashMap<String, ArrayList<String>> procedures = new HashMap<String, ArrayList<String>>();
+        public static ArrayList<String> procedureArguments = new ArrayList<String>();
+        public static String actualProcedureName = "";
+        public static boolean inProcedureDefinition = false;
 
         private RobotWorldDec world;
 
@@ -96,12 +100,13 @@ public class Robot implements RobotConstants {
     jj_consume_token(PROCS);
     label_2:
     while (true) {
-      jj_consume_token(STRING);
+      saveProcedure();
+                               Robot.inProcedureDefinition = true;
       jj_consume_token(LSQUAREBRACKET);
       jj_consume_token(BAR);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case STRING:
-        jj_consume_token(STRING);
+        saveVariable();
         label_3:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -113,7 +118,7 @@ public class Robot implements RobotConstants {
             break label_3;
           }
           jj_consume_token(COMMA);
-          jj_consume_token(STRING);
+          saveVariable();
         }
         break;
       default:
@@ -136,6 +141,9 @@ public class Robot implements RobotConstants {
         instruction();
       }
       jj_consume_token(RSQUAREBRACKET);
+      saveAllProcedureArguments();
+      restartProcedureAtributes();
+                                                                               Robot.inProcedureDefinition = false;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case STRING:
         ;
@@ -210,20 +218,20 @@ public class Robot implements RobotConstants {
       jj_consume_token(LPARENTHESIS);
       x = charNumToInt();
       jj_consume_token(RPARENTHESIS);
-                                                                            world.moveForward(x,true);
+                                                                            if(!inProcedureDefinition) { world.moveForward(x,true); }
       break;
     case POP:
       jj_consume_token(POP);
       jj_consume_token(LPARENTHESIS);
       x = charNumToInt();
       jj_consume_token(RPARENTHESIS);
-                                                                             world.popBalloons(x);
+                                                                             if(!inProcedureDefinition) { world.popBalloons(x); }
       break;
     case RIGHT:
       jj_consume_token(RIGHT);
       jj_consume_token(LPARENTHESIS);
       jj_consume_token(RPARENTHESIS);
-                                                             world.turnRight();
+                                                             if(!inProcedureDefinition) { world.turnRight();}
       break;
     case MOVE:
       jj_consume_token(MOVE);
@@ -240,7 +248,7 @@ public class Robot implements RobotConstants {
         jj_consume_token(-1);
         throw new ParseException();
       }
-                                                                              world.moveForward(x,false);
+                                                                              if(!inProcedureDefinition) {world.moveForward(x,false);}
       break;
     case ASSIGNTO:
       jj_consume_token(ASSIGNTO);
@@ -277,7 +285,7 @@ public class Robot implements RobotConstants {
         jj_consume_token(-1);
         throw new ParseException();
       }
-                                                                                                                                  world.setPostion(x,y);
+                                                                                                                                  if(!inProcedureDefinition) {world.setPostion(x,y);}
       break;
     case TURN:
       jj_consume_token(TURN);
@@ -339,11 +347,11 @@ public class Robot implements RobotConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case BALLOONS:
         jj_consume_token(BALLOONS);
-                                                                                                     world.putBalloons(x);
+                                                                                                     if(!inProcedureDefinition) {world.putBalloons(x); }
         break;
       case CHIPS:
         jj_consume_token(CHIPS);
-                                                                                                                                         world.putChips(x);
+                                                                                                                                                                       if(!inProcedureDefinition) {world.putChips(x); }
         break;
       default:
         jj_la1[16] = jj_gen;
@@ -370,11 +378,11 @@ public class Robot implements RobotConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case BALLOONS:
         jj_consume_token(BALLOONS);
-                                                                                                      world.grabBalloons(x);
+                                                                                                      if(!inProcedureDefinition) {world.grabBalloons(x); }
         break;
       case CHIPS:
         jj_consume_token(CHIPS);
-                                                                                                                                           world.pickChips(x);
+                                                                                                                                                                         if(!inProcedureDefinition) {world.pickChips(x); }
         break;
       default:
         jj_la1[18] = jj_gen;
@@ -416,6 +424,7 @@ public class Robot implements RobotConstants {
         jj_consume_token(-1);
         throw new ParseException();
       }
+                                                                                                                                            moveToTheLexer(x, "front");
       break;
     case JUMPTOTHE:
       jj_consume_token(JUMPTOTHE);
@@ -857,17 +866,22 @@ public class Robot implements RobotConstants {
   }
 
   final public void procedureCall() throws ParseException {
-    jj_consume_token(STRING);
+        int expectedArguments = 0;
+        int argumentCounter = 0;
+    isAProcedure();
+                         expectedArguments = procedures.get(token.image).size();
     jj_consume_token(COLON);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case NUMBER:
     case STRING:
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case STRING:
-        jj_consume_token(STRING);
+        getVariableValue();
+                                                                                                                    argumentCounter = argumentCounter+1;
         break;
       case NUMBER:
         jj_consume_token(NUMBER);
+                                                                                                                                                                          argumentCounter = argumentCounter+1;
         break;
       default:
         jj_la1[44] = jj_gen;
@@ -887,10 +901,12 @@ public class Robot implements RobotConstants {
         jj_consume_token(COMMA);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case STRING:
-          jj_consume_token(STRING);
+          getVariableValue();
+                                                                                                                                                                                                                                                   argumentCounter = argumentCounter+1;
           break;
         case NUMBER:
           jj_consume_token(NUMBER);
+                                                                                                                                                                                                                                                                                                         argumentCounter = argumentCounter+1;
           break;
         default:
           jj_la1[46] = jj_gen;
@@ -903,6 +919,7 @@ public class Robot implements RobotConstants {
       jj_la1[47] = jj_gen;
       ;
     }
+                                                                                                                                                                                                                                                                                                                                                      if(expectedArguments !=  argumentCounter) {{if (true) throw new Error("The expected arguments does not match with the recieved arguments.");}}
   }
 
   final public int charNumToInt() throws ParseException, Error {
@@ -922,7 +939,13 @@ public class Robot implements RobotConstants {
         String variableName = "";
     jj_consume_token(STRING);
                 variableName=token.image;
-                Robot.variables.put(variableName, -1);
+                if(inProcedureDefinition) {
+                  Robot.variables.put(variableName, 0);
+                Robot.procedureArguments.add(variableName);
+                }
+                else {
+                        Robot.variables.put(variableName, -1);
+                }
                 /*System.out.println(Robot.variables.keySet());*/
 
   }
@@ -957,6 +980,81 @@ public class Robot implements RobotConstants {
                 }
                 {if (true) return variableValue;}
     throw new Error("Missing return statement in function");
+  }
+
+  final public void saveProcedure() throws ParseException {
+        String procedureName = "";
+    jj_consume_token(STRING);
+                procedureName = token.image;
+                Robot.actualProcedureName = procedureName;
+                Robot.procedures.put(procedureName, new ArrayList<String >());
+  }
+
+  final public void saveProcedureArgument() throws ParseException {
+  String procedureArgumentName = "";
+    jj_consume_token(STRING);
+                procedureArgumentName = token.image;
+                Robot.procedureArguments.add(procedureArgumentName);
+  }
+
+  final public void saveAllProcedureArguments() throws ParseException {
+    if(Robot.procedures.replace(Robot.actualProcedureName, Robot.procedureArguments) != null) {
+        Robot.procedures.replace(Robot.actualProcedureName, Robot.procedureArguments);
+        }
+  }
+
+  final public void restartProcedureAtributes() throws ParseException {
+    Robot.actualProcedureName = "";
+    Robot.procedureArguments = new ArrayList<String>();
+  }
+
+  final public void isAnArgumentString() throws ParseException {
+  String argumentName = "";
+    jj_consume_token(STRING);
+    argumentName = token.image;
+  }
+
+  final public void isAProcedure() throws ParseException {
+  String procedureName = "";
+    jj_consume_token(STRING);
+    procedureName = token.image;
+
+    if(Robot.procedures.get(procedureName) ==  null) {
+                {if (true) throw new Error("The procedure " + procedureName +  " has not been declared.");}
+    }
+    else {
+                Robot.actualProcedureName = procedureName;
+    }
+  }
+
+  final public void moveToTheLexer(int steps, String direction) throws ParseException {
+        int facing = world.getFacing();
+                if(direction.toLowerCase() == "front") {
+                        if(facing == 1) {
+                          while(steps > 0) {
+                                world.down();
+                                steps = steps-1;
+                          }
+                        }
+                        if(facing == 2) {
+                          while(steps > 0) {
+                                world.right();
+                                steps = steps-1;
+                          }
+                        }
+                        if(facing == 0) {
+                          while(steps > 0) {
+                                world.up();
+                                steps = steps-1;
+                          }
+                        }
+                        if(facing == 3) {
+                          while(steps > 0) {
+                                world.left();
+                                steps = steps-1;
+                          }
+                        }
+                }
   }
 
   /** Generated Token Manager. */

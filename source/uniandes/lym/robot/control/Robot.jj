@@ -21,11 +21,15 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import java.lang.String;
 import java.lang.Integer;
-
+import java.util.ArrayList;
 @SuppressWarnings("serial")
 public class Robot{
 
 	public static HashMap<String, Integer> variables = new HashMap<String, Integer>();
+	public static HashMap<String, ArrayList<String>> procedures = new HashMap<String, ArrayList<String>>();
+	public static ArrayList<String> procedureArguments = new ArrayList<String>();
+	public static String actualProcedureName = "";
+	public static boolean inProcedureDefinition = false;
 
 	private RobotWorldDec world;
 	
@@ -171,7 +175,8 @@ void variablesDeclaration() :
 void proceduresDeclaration() :
 {}
 {
-  < PROCS > (< STRING > < LSQUAREBRACKET > < BAR > [< STRING > (< COMMA > < STRING >)*] < BAR > instruction() (< SEMICOLON > instruction())* < RSQUAREBRACKET >)+
+  < PROCS > (saveProcedure() { Robot.inProcedureDefinition = true; } < LSQUAREBRACKET > < BAR > [saveVariable() (< COMMA > saveVariable())*] < BAR > instruction() (< SEMICOLON > instruction())*
+  < RSQUAREBRACKET > saveAllProcedureArguments() restartProcedureAtributes() { Robot.inProcedureDefinition = false; })+	
 }
 
 void instructionsBlocK() :
@@ -195,17 +200,17 @@ void commandInstruction() :
   String text = "";
 }
 {
-		< HOP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS > {world.moveForward(x,true);}
-	| 	< POP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS >  {world.popBalloons(x);}
-	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS > {world.turnRight();}
-	|  	< MOVE > < COLON > (x=charNumToInt() | x=getVariableValue()) {world.moveForward(x,false);} 
+		< HOP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS > {if(!inProcedureDefinition) { world.moveForward(x,true); }}
+	| 	< POP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS >  {if(!inProcedureDefinition) { world.popBalloons(x); }}
+	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS > {if(!inProcedureDefinition) { world.turnRight();} }
+	|  	< MOVE > < COLON > (x=charNumToInt() | x=getVariableValue()) {if(!inProcedureDefinition) {world.moveForward(x,false);} }
 	| 	< ASSIGNTO > < COLON > x=charNumToInt() < COMMA > saveValueToVariable(x)
-	| 	< GOTO > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (y=charNumToInt() | y=getVariableValue()) {world.setPostion(x,y);} 
+	| 	< GOTO > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (y=charNumToInt() | y=getVariableValue()) {if(!inProcedureDefinition) {world.setPostion(x,y);} } 
 	| 	< TURN > < COLON > (< LEFT > | < RIGHT > | < AROUND >)
 	| 	< FACE > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
-	| 	< PUT > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {world.putBalloons(x);} | < CHIPS > {world.putChips(x);})
-	| 	< PICK > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {world.grabBalloons(x);} | < CHIPS > {world.pickChips(x);})
-	| 	< MOVETOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
+	| 	< PUT > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.putBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.putChips(x); }})
+	| 	< PICK > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.grabBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.pickChips(x); }})
+	| 	< MOVETOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >) { moveToTheLexer(x, "front");}
 	| 	< JUMPTOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
 	| 	< MOVEINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
 	|   < JUMPINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
@@ -216,7 +221,7 @@ void commandInstruction() :
 void structureControl():
 { }
 {
-  		conditionalIf()
+  		conditionalIf() 
 	| 	loop()
 	|   repeat()	
 }
@@ -301,9 +306,12 @@ void not():
 }
 
 void procedureCall() :
-{}
 {
-	< STRING > < COLON > [(< STRING > | < NUMBER >) (< COMMA > (< STRING > | < NUMBER >))*]
+	int expectedArguments = 0;
+	int argumentCounter = 0;
+}
+{
+	isAProcedure() { expectedArguments = procedures.get(token.image).size(); } < COLON > [(getVariableValue() { argumentCounter = argumentCounter+1; } | < NUMBER > { argumentCounter = argumentCounter+1; }) (< COMMA > (getVariableValue() { argumentCounter = argumentCounter+1; } | < NUMBER > { argumentCounter = argumentCounter+1; }))*] { if(expectedArguments !=  argumentCounter) {throw new Error("The expected arguments does not match with the recieved arguments.");} }
 }
 
 int charNumToInt() throws Error:
@@ -331,7 +339,13 @@ void saveVariable():
 	< STRING >
 	{
 		variableName=token.image;
-		Robot.variables.put(variableName, -1);
+		if(inProcedureDefinition) {
+		  Robot.variables.put(variableName, 0);
+		Robot.procedureArguments.add(variableName);
+		}
+		else { 
+			Robot.variables.put(variableName, -1);
+		}
 		/*System.out.println(Robot.variables.keySet());*/
 	}
 }
@@ -373,5 +387,118 @@ int getVariableValue() throws Error:
 			throw new Error("The variable " + variableName +  " has not been initialized.");
 		}
 		return variableValue;
+	}
+}
+
+void saveProcedure():
+{
+  	String procedureName = "";
+}
+{
+	< STRING >
+	{
+		procedureName = token.image;
+		Robot.actualProcedureName = procedureName;
+		Robot.procedures.put(procedureName, new ArrayList<String >());
+	}
+}
+
+void saveProcedureArgument():
+{
+  String procedureArgumentName = "";
+}
+{
+  	< STRING >
+	{
+  		procedureArgumentName = token.image;
+  		Robot.procedureArguments.add(procedureArgumentName);
+	}
+}
+
+void saveAllProcedureArguments():
+{
+}
+{
+  {
+    if(Robot.procedures.replace(Robot.actualProcedureName, Robot.procedureArguments) != null) { 
+    	Robot.procedures.replace(Robot.actualProcedureName, Robot.procedureArguments);
+  	}
+  }
+}
+
+void restartProcedureAtributes():
+{
+}
+{
+  {
+    Robot.actualProcedureName = "";
+    Robot.procedureArguments = new ArrayList<String>();
+  } 
+}
+
+void isAnArgumentString():
+{
+  String argumentName = "";
+}
+{
+  < STRING >
+  {
+    argumentName = token.image;
+    
+    
+    
+  }
+}
+
+void isAProcedure():
+{
+  String procedureName = "";
+}
+{
+  < STRING >
+  {
+    procedureName = token.image;
+    
+    if(Robot.procedures.get(procedureName) ==  null) {
+		throw new Error("The procedure " + procedureName +  " has not been declared.");
+    }
+    else {
+		Robot.actualProcedureName = procedureName;
+    }
+  }
+}
+
+void moveToTheLexer(int steps, String direction) :
+{
+	int facing = world.getFacing();
+}
+{
+	{
+		if(direction.toLowerCase() == "front") {
+			if(facing == 1) {
+			  while(steps > 0) {
+			   	world.down();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 2) {
+			  while(steps > 0) {
+			   	world.right();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 0) {
+			  while(steps > 0) {
+			   	world.up();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 3) {
+			  while(steps > 0) {
+			   	world.left();
+			   	steps = steps-1;
+			  }
+			}
+		}
 	}
 }

@@ -1,6 +1,5 @@
 package uniandes.lym.robot.kernel;
 
-
 import java.awt.Point;
 import java.util.*;
 import java.beans.PropertyChangeListener;
