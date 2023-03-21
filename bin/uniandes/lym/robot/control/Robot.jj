@@ -1,15 +1,3 @@
-/*
-Gramatica para el Robot:
-Autor: Alejandro Arango
-Modificado por: Silvia Takahashi
-Modificado por: Juan Pablo Morales.
-Agregadas producciones para manejar globos
-Modificado por Silvia Takahashi
-
-
- **/
-
-
 options 
 {
   
@@ -25,17 +13,14 @@ PARSER_BEGIN(Robot)
 package uniandes.lym.robot.control;
 
 import uniandes.lym.robot.kernel.*;
-import uniandes.lym.robot.view.Console;
- 
+import uniandes.lym.robot.view.Console; 
 import java.awt.Point;
 import java.io.*;
 import java.util.Vector;
 import java.util.LinkedList;
 
 @SuppressWarnings("serial")
-public class Robot 
-{
-
+public class Robot{
 
 	private RobotWorldDec world;
 	
@@ -43,7 +28,7 @@ public class Robot
 	void setWorld(RobotWorld w) {
 		world = (RobotWorldDec) w;	
 	}
-
+	
 	String salida=new String();
 }
 PARSER_END(Robot)
@@ -141,17 +126,15 @@ TOKEN /* Alphanumercis */:
 	| 	< STRING: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z", "0"-"9"])* >
 }
 
+
 //boolean command(uniandes.lym.robot.view.Console sistema) :
 boolean command(Console sistema):
-{			
-	int x,y;
-	salida=new String();	
-}
 {
-  
-	(
-		program()
-	)
+  	int x,y;	
+	salida=new String();
+}
+{ 
+	program()
 	{
 	  
 		try {
@@ -160,8 +143,6 @@ boolean command(Console sistema):
 	    catch(InterruptedException e) {
 	    	System.err.format("IOException: %s%n", e);
 	    }
-
-	    sistema.printOutput(salida);
 		return true;
 
 	}
@@ -198,26 +179,121 @@ void instruction() :
 {}
 {
 		commandInstruction()
-	/*|	structureControl()*/
+	|	structureControl()
 	| 	procedureCall()
 }
 
 void commandInstruction() :
-{}
 {
-		(< POP > | < HOP >) < LPARENTHESIS > < NUMBER > < RPARENTHESIS >
-	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS >
-	|	< GO > < LPARENTHESIS > (< NUMBER > | < STRING >) < COMMA > (< NUMBER > | < STRING >) < RPARENTHESIS >
-	|  	< MOVE > < COLON > (< NUMBER > | < STRING >)
+  int x=0;
+  int y=0;
+}
+{
+		< HOP > < LPARENTHESIS > x=num() < RPARENTHESIS > {world.moveForward(x,true);}
+	| 	< POP > < LPARENTHESIS > x=num() < RPARENTHESIS >  {world.popBalloons(x);}
+	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS > {world.turnRight();}
+	|	< GO > < LPARENTHESIS > (x=num() | < STRING >) < COMMA > (y=num() | < STRING >) < RPARENTHESIS > {world.setPostion(x,y);} 
+	|  	< MOVE > < COLON > (x=num() | < STRING >) {world.moveForward(x,false);} 
 	| 	< ASSIGNTO > < COLON > < NUMBER > < COMMA > < STRING >
 	| 	< GOTO > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NUMBER > | < STRING >)
 	| 	< TURN > < COLON > (< LEFT > | < RIGHT > | < AROUND >)
 	| 	< FACE > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
-	| 	(< PUT > | < PICK >) < COLON > (< NUMBER > | < STRING >) < COMMA > (< BALLOONS > | < CHIPS >)
-	| 	(< MOVETOTHE > | < JUMPTOTHE >) < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
-	| 	(< MOVEINDIR > | < JUMPINDIR >) < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+	| 	< PUT > < COLON > (< NUMBER > | < STRING >) < COMMA > (< BALLOONS > | < CHIPS >)
+	| 	< PICK > < COLON > (< NUMBER > | < STRING >) < COMMA > (< BALLOONS > | < CHIPS >)
+	| 	< MOVETOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
+	| 	< JUMPTOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
+	| 	< MOVEINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+	|   < JUMPINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
 	| 	< NOP > <COLON >
 	
+}
+
+void structureControl():
+{ }
+{
+  		conditionalIf()
+	| 	loop()
+	|   repeat()	
+}
+
+void conditionalIf():
+{}
+{
+	< IF > < COLON > condition() < THEN > < COLON > instructionsBlocK() < ELSE > < COLON > instructionsBlocK()
+}
+void loop():
+{}
+{
+	< WHILE > < COLON > condition() < DO > < COLON > instructionsBlocK()
+}
+
+void repeat():
+{
+}
+{
+	< REPEAT > < COLON > (<NUMBER> | <STRING>) instructionsBlocK()
+} 
+  
+void condition():
+{}
+{
+	facing()
+  |	canPut()
+  |	canPick()
+  |	canMoveIn()
+  |	canJumpIn()
+  |	canMoveTo()
+  |	canJumpTo()
+  |	not()
+}
+
+void facing():
+{}
+{
+	< FACING > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+}
+
+void canPut():
+{}
+{
+ 	< CANPUT > < COLON > (< NUMBER > | < STRING >) < COMMA > (< CHIPS > | < BALLOONS >) 
+}
+
+void canPick():
+{}
+{
+  	< CANPICK > <COLON> (<NUMBER> | <STRING>) <COMMA> (<CHIPS>|<BALLOONS>) 
+}
+
+void canMoveIn():
+{}
+{
+  < CANMOVEINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >) 
+}
+
+void canJumpIn():
+{}
+{
+  < CANJUMPINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+}
+
+void canMoveTo():
+{}
+{
+  < CANMOVETOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < RIGHT > | < LEFT > | < BACK >) 
+}
+
+void canJumpTo():
+{}
+{
+  < CANJUMPTOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < RIGHT > | < LEFT > | < BACK >) 
+}
+
+void not():
+{
+}
+{
+  < NOT > < COLON > condition()
 }
 
 void procedureCall() :
@@ -226,52 +302,37 @@ void procedureCall() :
 	< STRING > < COLON > [(< STRING > | < NUMBER >) (< COMMA > (< STRING > | < NUMBER >))*]
 }
 
-	void put() :
-	{
-		int f=1;	
-	}
-	{
+void put() :
+{
+  int f=1;	
+}
+{
 		( <CHIPS>    "," f=num() {world.putChips(f); salida = "Command:  Put Chips"; })
-		|  	  ( <BALLOONS>   "," f=num() {world.putBalloons(f); salida = "Command:  Put Balloons";})	 
+	|  	( <BALLOONS>   "," f=num() {world.putBalloons(f); salida = "Command:  Put Balloons";})	 
+}
 
-	}
-
-	void get() :
-	{
-		int f=1;	
-	}
-	{
+void get() :
+{
+	int f=1;	
+}
+{
 		( <CHIPS>   "," f=num() {world.pickChips(f);salida = "Command:  Pick chips";})
-		|  	  ( <BALLOONS>   "," f=num() {world.grabBalloons(f);salida="Command:  Pick balloons";})	 
+	|  	( <BALLOONS>   "," f=num() {world.grabBalloons(f);salida="Command:  Pick balloons";})	 
+}
 
-	}
-
-	
-	
-
-	/**
-	 * Unsigned decimal number
-	 * @return the corresponding value of the string
-	 * @error  corresponding value is too large
-	 */
-
-	int num() throws Error:
-	{	
-		int total=1;
-	}
+int num() throws Error:
+{	
+	int total=1;
+}
+{
+	<NUMBER>
 	{
-		<NUMBER>
-		{
-			try 
-			{
-				total = Integer.parseInt(token.image);
-			} 
-			catch (NumberFormatException ee) 
-			{
-				throw new Error("Number out of bounds: "+token.image+" !!");
-			}
-			return total;
+		try{
+			total = Integer.parseInt(token.image);
+		} 
+		catch (NumberFormatException ee){
+			throw new Error("Number out of bounds: "+token.image+" !!");
 		}
+		return total;
 	}
-
-	
+}
