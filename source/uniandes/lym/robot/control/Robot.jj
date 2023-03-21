@@ -58,46 +58,72 @@ SKIP:
 
 TOKEN: /* Reserved words*/
 {
-		< ROBOTR: "ROBOT_R"> 
-	| 	< VARS: "VARS"> 
-	| 	< PROCS: "PROCS"> 
+		< ROBOTR: "ROBOT_R" > 
+	| 	< VARS: "VARS" > 
+	| 	< PROCS: "PROCS" > 
 }
 
-TOKEN: /*  */
+TOKEN: /* Directions  */
 {
-		< ASSIGNTO:"assignTo"> 
-	| 	< GOTO:"goto"> 
-	| 	< MOVE:"move"> 
-	|	< TURN:"turn"> 
-	| 	< FACE:"face">  
-	| 	< MOVETOTHE:"moveToThe"> 
-	| 	< MOVEINDIR:"moveInDir"> 
-	| 	< JUMPTOTHE:"jumpToThe"> 
-	| 	< JUMPINDIR:"jumpInDir"> 
-	| 	< NOP:"nop"> 
-	| 	< IF:"if"> 
-	| 	< THEN:"then"> 
-	| 	< ELSE:"else"> 
-	| 	< DO:"do"> 
-	| 	< WHILE:"while"> 
-	| 	< REPEAT:"repeat"> 
-	| 	< FACING:"facing"> 
-	| 	< CANPUT:"canput"> 
-	| 	< CANPICK:"canpick"> 
-	| 	< CANMOVEINDIR:"canmoveInDir"> 
-	| 	< CANJUMPINDIR:"canJumpInDir"> 
-	| 	< CANMOVETOTHE:"canMoveToThe"> 
-	| 	< CANJUMPTOTHE:"canJumpToThe"> 
-	| 	< NOT:"not"> 
-	| 	< LEFT:"left"> 
-	| 	< AROUND:"around">
-	| 	<FRONT:"front"> 
-	| 	< BACK:"back"> 
-	| 	< NORTH:"north"> 
-	| 	< SOUTH:"south"> 
-	| 	< WEST:"west"> 
-	| 	< EAST:"east"> 
-	| 	< COMMA:","> 
+	 	< LEFT:"left" > 
+	| 	< AROUND:"around" >
+	| 	< FRONT:"front" > 
+	| 	< BACK:"back" > 
+	| 	< NORTH:"north" > 
+	| 	< SOUTH:"south" > 
+	| 	< WEST:"west" > 
+	| 	< EAST:"east" > 
+
+}
+
+TOKEN: /* Control structures */
+{
+	 	< IF:"if" > 
+	| 	< THEN:"then" > 
+	| 	< ELSE:"else" > 
+	| 	< DO:"do" > 
+	| 	< WHILE:"while" > 
+	| 	< REPEAT:"repeat" > 
+	| 	< FACING:"facing" > 
+	| 	< CANPUT:"canput" > 
+	| 	< CANPICK:"canpick" > 
+	| 	< CANMOVEINDIR:"canmoveInDir" > 
+	| 	< CANJUMPINDIR:"canJumpInDir" > 
+	| 	< CANMOVETOTHE:"canMoveToThe" > 
+	| 	< CANJUMPTOTHE:"canJumpToThe" > 
+	| 	< NOT:"not" > 
+}
+
+TOKEN: /* Commands */
+{
+		< MOV:  "Mov" >
+	| 	< RIGHT: "right" >
+	| 	< PUT: "Put" >
+	|	< PICK: "Pick" >
+	|  	< POP: "Pop" >
+	|  	< GO: "Go" >
+    |  	< HOP: "Hop" >
+	| 	< ASSIGNTO:"assignTo"> 
+	| 	< GOTO:"goTo" > 
+	| 	< MOVE:"move" > 
+	|	< TURN:"turn" > 
+	| 	< FACE:"face" >  
+	| 	< MOVETOTHE:"moveToThe" > 
+	| 	< MOVEINDIR:"moveInDir" > 
+	| 	< JUMPTOTHE:"jumpToThe" > 
+	| 	< JUMPINDIR:"jumpInDir" > 
+	| 	< NOP:"nop" > 		
+}
+
+TOKEN /* Objects */:
+{
+		< BALLOONS: "BALLOONS" >
+	|	< CHIPS: "CHIPS" >
+}
+
+TOKEN /* Special characters */:
+{
+	 	< COMMA:"," > 
 	| 	< COLON : ":" >  
 	| 	< SEMICOLON : ";" > 
 	| 	< LBRACKET : "{" >  
@@ -107,74 +133,42 @@ TOKEN: /*  */
 	| 	< LPARENTHESIS : "(" >  
 	| 	< RPARENTHESIS : ")" >
 	| 	< BAR : "|" >
-
-}
-
-TOKEN: /* Commands */
-{
-
-		< MOV:  "Mov" >
-	| 	< RIGHT: "right" >
-	| 	< PUT: "Put" >
-	|	< PICK: "Pick" >
-	|  	< POP: "Pop" >
-	|  	< GO: "Go" >
-    |  	< HOP: "Hop" >		
-
-}
-
-TOKEN /* Objects */:
-{
-		< BALLOONS: "BALLOONS" >
-	|	< CHIPS: "CHIPS"  >
-
 }
 
 TOKEN /* Alphanumercis */:
 {
 	 	< NUMBER: ([ "0"-"9" ])+ >
-	| 	< STRING: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z", "0"-"9"])* > 
-
+	| 	< STRING: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z", "0"-"9"])* >
 }
 
-
-
-TOKEN :
+//boolean command(uniandes.lym.robot.view.Console sistema) :
+boolean command(Console sistema):
+{			
+	int x,y;
+	salida=new String();	
+}
 {
-		<NUM: (<DIGIT>)+ >
-		|  	<#DIGIT: ["0"-"9"] >
-        
-}
-
-
-
-	//boolean command(uniandes.lym.robot.view.Console sistema) :
-	boolean command(Console sistema):
-	{	
-		
-		int x,y;
-		salida=new String();	
-	}
-
-	
+  
+	(
+		program()
+	)
 	{
-		(		  (
-			program()
-		)
+	  
+		try {
+	    	Thread.sleep(900);
+	    }
+	    catch(InterruptedException e) {
+	    	System.err.format("IOException: %s%n", e);
+	    }
 
-		{
-		    try {
-	    			 Thread.sleep(900);
-	    	    } catch (InterruptedException e) {
-	    			        System.err.format("IOException: %s%n", e);
-	    		    }
-	    			 
-			sistema.printOutput(salida);
-			return true;
-		})+
+	    sistema.printOutput(salida);
+		return true;
 
-    	| <EOF> {return false;} 
 	}
+
+	| <EOF> {return false;} 
+
+}
 
 void program() :
 {}
@@ -191,31 +185,45 @@ void variablesDeclaration() :
 void proceduresDeclaration() :
 {}
 {
-  < PROCS > (< STRING > < LSQUAREBRACKET > < BAR > [< STRING > (< COMMA > < STRING >)*] < BAR > (instruction())+ < LSQUAREBRACKET >)+
+  < PROCS > (< STRING > < LSQUAREBRACKET > < BAR > [< STRING > (< COMMA > < STRING >)*] < BAR > instruction() (< SEMICOLON > instruction())* < RSQUAREBRACKET >)+
 }
 
 void instructionsBlocK() :
 {}
 {
-  < PUT >
+  < LSQUAREBRACKET > instruction() (< SEMICOLON > instruction())* < RSQUAREBRACKET >
 }
 
 void instruction() :
 {}
 {
-		command()
-	|	structureControl()
+		commandInstruction()
+	/*|	structureControl()*/
 	| 	procedureCall()
 }
 
-void command() :
+void commandInstruction() :
 {}
 {
-		(< MOVE > | < POP > | < HOP >) < LPARENTHESIS > < NUMBER > < RPARENTHESIS >
+		(< POP > | < HOP >) < LPARENTHESIS > < NUMBER > < RPARENTHESIS >
 	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS >
-	|	(< PUT > | < PICK >) < LPARENTHESIS > (< CHIPS > | < BALLOONS >) < COMMA > < NUMBER > < RPARENTHESIS >
-	|	< GO > < LPARENTHESIS > (< NUMBER > | < STRING >) < COMMMA > (< NUMBER > | < STRING >) < RPARENTHESIS >
+	|	< GO > < LPARENTHESIS > (< NUMBER > | < STRING >) < COMMA > (< NUMBER > | < STRING >) < RPARENTHESIS >
+	|  	< MOVE > < COLON > (< NUMBER > | < STRING >)
+	| 	< ASSIGNTO > < COLON > < NUMBER > < COMMA > < STRING >
+	| 	< GOTO > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NUMBER > | < STRING >)
+	| 	< TURN > < COLON > (< LEFT > | < RIGHT > | < AROUND >)
+	| 	< FACE > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+	| 	(< PUT > | < PICK >) < COLON > (< NUMBER > | < STRING >) < COMMA > (< BALLOONS > | < CHIPS >)
+	| 	(< MOVETOTHE > | < JUMPTOTHE >) < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
+	| 	(< MOVEINDIR > | < JUMPINDIR >) < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+	| 	< NOP > <COLON >
 	
+}
+
+void procedureCall() :
+{}
+{
+	< STRING > < COLON > [(< STRING > | < NUMBER >) (< COMMA > (< STRING > | < NUMBER >))*]
 }
 
 	void put() :

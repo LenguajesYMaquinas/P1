@@ -17,115 +17,111 @@ public interface RobotConstants {
   /** RegularExpression Id. */
   int PROCS = 7;
   /** RegularExpression Id. */
-  int ASSIGNTO = 8;
+  int LEFT = 8;
   /** RegularExpression Id. */
-  int GOTO = 9;
+  int AROUND = 9;
   /** RegularExpression Id. */
-  int MOVE = 10;
+  int FRONT = 10;
   /** RegularExpression Id. */
-  int TURN = 11;
+  int BACK = 11;
   /** RegularExpression Id. */
-  int FACE = 12;
+  int NORTH = 12;
   /** RegularExpression Id. */
-  int MOVETOTHE = 13;
+  int SOUTH = 13;
   /** RegularExpression Id. */
-  int MOVEINDIR = 14;
+  int WEST = 14;
   /** RegularExpression Id. */
-  int JUMPTOTHE = 15;
+  int EAST = 15;
   /** RegularExpression Id. */
-  int JUMPINDIR = 16;
+  int IF = 16;
   /** RegularExpression Id. */
-  int NOP = 17;
+  int THEN = 17;
   /** RegularExpression Id. */
-  int IF = 18;
+  int ELSE = 18;
   /** RegularExpression Id. */
-  int THEN = 19;
+  int DO = 19;
   /** RegularExpression Id. */
-  int ELSE = 20;
+  int WHILE = 20;
   /** RegularExpression Id. */
-  int DO = 21;
+  int REPEAT = 21;
   /** RegularExpression Id. */
-  int WHILE = 22;
+  int FACING = 22;
   /** RegularExpression Id. */
-  int REPEAT = 23;
+  int CANPUT = 23;
   /** RegularExpression Id. */
-  int FACING = 24;
+  int CANPICK = 24;
   /** RegularExpression Id. */
-  int CANPUT = 25;
+  int CANMOVEINDIR = 25;
   /** RegularExpression Id. */
-  int CANPICK = 26;
+  int CANJUMPINDIR = 26;
   /** RegularExpression Id. */
-  int CANMOVEINDIR = 27;
+  int CANMOVETOTHE = 27;
   /** RegularExpression Id. */
-  int CANJUMPINDIR = 28;
+  int CANJUMPTOTHE = 28;
   /** RegularExpression Id. */
-  int CANMOVETOTHE = 29;
+  int NOT = 29;
   /** RegularExpression Id. */
-  int CANJUMPTOTHE = 30;
+  int MOV = 30;
   /** RegularExpression Id. */
-  int NOT = 31;
+  int RIGHT = 31;
   /** RegularExpression Id. */
-  int LEFT = 32;
+  int PUT = 32;
   /** RegularExpression Id. */
-  int AROUND = 33;
+  int PICK = 33;
   /** RegularExpression Id. */
-  int FRONT = 34;
+  int POP = 34;
   /** RegularExpression Id. */
-  int BACK = 35;
+  int GO = 35;
   /** RegularExpression Id. */
-  int NORTH = 36;
+  int HOP = 36;
   /** RegularExpression Id. */
-  int SOUTH = 37;
+  int ASSIGNTO = 37;
   /** RegularExpression Id. */
-  int WEST = 38;
+  int GOTO = 38;
   /** RegularExpression Id. */
-  int EAST = 39;
+  int MOVE = 39;
   /** RegularExpression Id. */
-  int COMMA = 40;
+  int TURN = 40;
   /** RegularExpression Id. */
-  int COLON = 41;
+  int FACE = 41;
   /** RegularExpression Id. */
-  int SEMICOLON = 42;
+  int MOVETOTHE = 42;
   /** RegularExpression Id. */
-  int LBRACKET = 43;
+  int MOVEINDIR = 43;
   /** RegularExpression Id. */
-  int RBRACKET = 44;
+  int JUMPTOTHE = 44;
   /** RegularExpression Id. */
-  int LSQUAREBRACKET = 45;
+  int JUMPINDIR = 45;
   /** RegularExpression Id. */
-  int RSQUAREBRACKET = 46;
+  int NOP = 46;
   /** RegularExpression Id. */
-  int LPARENTHESIS = 47;
+  int BALLOONS = 47;
   /** RegularExpression Id. */
-  int RPARENTHESIS = 48;
+  int CHIPS = 48;
   /** RegularExpression Id. */
-  int BAR = 49;
+  int COMMA = 49;
   /** RegularExpression Id. */
-  int MOV = 50;
+  int COLON = 50;
   /** RegularExpression Id. */
-  int RIGHT = 51;
+  int SEMICOLON = 51;
   /** RegularExpression Id. */
-  int PUT = 52;
+  int LBRACKET = 52;
   /** RegularExpression Id. */
-  int PICK = 53;
+  int RBRACKET = 53;
   /** RegularExpression Id. */
-  int POP = 54;
+  int LSQUAREBRACKET = 54;
   /** RegularExpression Id. */
-  int GO = 55;
+  int RSQUAREBRACKET = 55;
   /** RegularExpression Id. */
-  int HOP = 56;
+  int LPARENTHESIS = 56;
   /** RegularExpression Id. */
-  int BALLOONS = 57;
+  int RPARENTHESIS = 57;
   /** RegularExpression Id. */
-  int CHIPS = 58;
+  int BAR = 58;
   /** RegularExpression Id. */
   int NUMBER = 59;
   /** RegularExpression Id. */
   int STRING = 60;
-  /** RegularExpression Id. */
-  int NUM = 61;
-  /** RegularExpression Id. */
-  int DIGIT = 62;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -140,16 +136,14 @@ public interface RobotConstants {
     "\"ROBOT_R\"",
     "\"VARS\"",
     "\"PROCS\"",
-    "\"assignTo\"",
-    "\"goto\"",
-    "\"move\"",
-    "\"turn\"",
-    "\"face\"",
-    "\"moveToThe\"",
-    "\"moveInDir\"",
-    "\"jumpToThe\"",
-    "\"jumpInDir\"",
-    "\"nop\"",
+    "\"left\"",
+    "\"around\"",
+    "\"front\"",
+    "\"back\"",
+    "\"north\"",
+    "\"south\"",
+    "\"west\"",
+    "\"east\"",
     "\"if\"",
     "\"then\"",
     "\"else\"",
@@ -164,14 +158,25 @@ public interface RobotConstants {
     "\"canMoveToThe\"",
     "\"canJumpToThe\"",
     "\"not\"",
-    "\"left\"",
-    "\"around\"",
-    "\"front\"",
-    "\"back\"",
-    "\"north\"",
-    "\"south\"",
-    "\"west\"",
-    "\"east\"",
+    "\"Mov\"",
+    "\"right\"",
+    "\"Put\"",
+    "\"Pick\"",
+    "\"Pop\"",
+    "\"Go\"",
+    "\"Hop\"",
+    "\"assignTo\"",
+    "\"goTo\"",
+    "\"move\"",
+    "\"turn\"",
+    "\"face\"",
+    "\"moveToThe\"",
+    "\"moveInDir\"",
+    "\"jumpToThe\"",
+    "\"jumpInDir\"",
+    "\"nop\"",
+    "\"BALLOONS\"",
+    "\"CHIPS\"",
     "\",\"",
     "\":\"",
     "\";\"",
@@ -182,19 +187,8 @@ public interface RobotConstants {
     "\"(\"",
     "\")\"",
     "\"|\"",
-    "\"Mov\"",
-    "\"RIGHT\"",
-    "\"Put\"",
-    "\"Pick\"",
-    "\"Pop\"",
-    "\"GO\"",
-    "\"HOP\"",
-    "\"BALLOONS\"",
-    "\"CHIPS\"",
     "<NUMBER>",
     "<STRING>",
-    "<NUM>",
-    "<DIGIT>",
   };
 
 }
