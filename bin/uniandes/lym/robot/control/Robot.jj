@@ -163,7 +163,7 @@ boolean command(Console sistema):
 void program() :
 {}
 {
-  < ROBOTR > [variablesDeclaration()] [proceduresDeclaration()] instructionsBlocK()
+  < ROBOTR > [variablesDeclaration()] [proceduresDeclaration()] instructionsBlocK(true)
 }
 
 void variablesDeclaration() :
@@ -175,25 +175,25 @@ void variablesDeclaration() :
 void proceduresDeclaration() :
 {}
 {
-  < PROCS > (saveProcedure() { Robot.inProcedureDefinition = true; } < LSQUAREBRACKET > < BAR > [saveVariable() (< COMMA > saveVariable())*] < BAR > instruction() (< SEMICOLON > instruction())*
+  < PROCS > (saveProcedure() { Robot.inProcedureDefinition = true; } < LSQUAREBRACKET > < BAR > [saveVariable() (< COMMA > saveVariable())*] < BAR > instruction(true) (< SEMICOLON > instruction(true))*
   < RSQUAREBRACKET > saveAllProcedureArguments() restartProcedureAtributes() { Robot.inProcedureDefinition = false; })+	
 }
 
-void instructionsBlocK() :
+void instructionsBlocK(boolean conditionalCondition) :
 {}
 {
-  < LSQUAREBRACKET > instruction() (< SEMICOLON > instruction())* < RSQUAREBRACKET >
+  < LSQUAREBRACKET > instruction(conditionalCondition) (< SEMICOLON > instruction(conditionalCondition))* < RSQUAREBRACKET >
 }
 
-void instruction() :
+void instruction(boolean conditionalCondition) :
 {}
 {
-		commandInstruction()
+		commandInstruction(conditionalCondition)
 	|	structureControl()
 	| 	procedureCall()
 }
 
-void commandInstruction() :
+void commandInstruction(boolean conditionalCondition) :
 {
   int x=0;
   int y=0;
@@ -201,20 +201,20 @@ void commandInstruction() :
   int direction = 0;
 }
 {
-		< HOP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS > {if(!inProcedureDefinition) { world.moveForward(x,true); }}
-	| 	< POP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS >  {if(!inProcedureDefinition) { world.popBalloons(x); }}
-	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS > {if(!inProcedureDefinition) { world.turnRight();} }
-	|  	< MOVE > < COLON > (x=charNumToInt() | x=getVariableValue()) {if(!inProcedureDefinition) {world.moveForward(x,false);} }
+		< HOP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS > {if(!inProcedureDefinition && conditionalCondition) { world.moveForward(x,true); }}
+	| 	< POP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS >  {if(!inProcedureDefinition && conditionalCondition) { world.popBalloons(x); }}
+	|	< RIGHT > < LPARENTHESIS > < RPARENTHESIS > {if(!inProcedureDefinition && conditionalCondition) { world.turnRight();} }
+	|  	< MOVE > < COLON > (x=charNumToInt() | x=getVariableValue()) {if(!inProcedureDefinition && conditionalCondition) {world.moveForward(x,false);} }
 	| 	< ASSIGNTO > < COLON > x=charNumToInt() < COMMA > saveValueToVariable(x)
-	| 	< GOTO > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (y=charNumToInt() | y=getVariableValue()) {if(!inProcedureDefinition) {world.setPostion(x,y);} } 
+	| 	< GOTO > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (y=charNumToInt() | y=getVariableValue()) {if(!inProcedureDefinition && conditionalCondition) {world.setPostion(x,y);} } 
 	| 	< TURN > < COLON > (turnDirection())
-	| 	< FACE > < COLON >(x=getDirection()) {if(!inProcedureDefinition) {faceLexer(x); }}
-	| 	< PUT > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.putBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.putChips(x); }})
-	| 	< PICK > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.grabBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.pickChips(x); }})
-	| 	< MOVETOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { moveToTheLexer(x, text);}
-	| 	< JUMPTOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { jumpToTheLexer(x, text);}
-	| 	< MOVEINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (direction = getDirection()){if(!inProcedureDefinition) {faceLexer(direction); world.moveForward(x,false);}}
-	|   < JUMPINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (direction = getDirection()){if(!inProcedureDefinition) {faceLexer(direction); world.moveForward(x,true);}} 
+	| 	< FACE > < COLON >(x=getDirection()) {if(!inProcedureDefinition && conditionalCondition) {faceLexer(x); }}
+	| 	< PUT > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition && conditionalCondition) {world.putBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition&& conditionalCondition) {world.putChips(x); }})
+	| 	< PICK > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition && conditionalCondition) {world.grabBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition && conditionalCondition) {world.pickChips(x); }})
+	| 	< MOVETOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { if(!inProcedureDefinition && conditionalCondition) { moveToTheLexer(x, text);} }
+	| 	< JUMPTOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { if(!inProcedureDefinition && conditionalCondition) { jumpToTheLexer(x, text);} }
+	| 	< MOVEINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (direction = getDirection()){if(!inProcedureDefinition && conditionalCondition) {faceLexer(direction); world.moveForward(x,false);}}
+	|   < JUMPINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (direction = getDirection()){if(!inProcedureDefinition && conditionalCondition) {faceLexer(direction); world.moveForward(x,true);}} 
 	| 	< NOP > <COLON >
 	
 }
@@ -228,82 +228,130 @@ void structureControl():
 }
 
 void conditionalIf():
-{}
 {
-	< IF > < COLON > condition() < THEN > < COLON > instructionsBlocK() < ELSE > < COLON > instructionsBlocK()
+	boolean conditionResult = false;
+}
+{
+	< IF > < COLON > conditionResult=condition() < THEN > < COLON > instructionsBlocK(conditionResult) < ELSE > < COLON > instructionsBlocK(!conditionResult)
 }
 void loop():
-{}
 {
-	< WHILE > < COLON > condition() < DO > < COLON > instructionsBlocK()
+  boolean conditionResult = false;
+}
+{
+	< WHILE > < COLON > condition() < DO > < COLON > instructionsBlocK(conditionResult)
 }
 
 void repeat():
 {
+  boolean conditionResult = false;
 }
 {
-	< REPEAT > < COLON > (<NUMBER> | <STRING>) instructionsBlocK()
+	< REPEAT > < COLON > (<NUMBER> | <STRING>) instructionsBlocK(conditionResult)
 } 
   
-void condition():
-{}
+boolean condition():
 {
-	facing()
-  |	canPut()
-  |	canPick()
-  |	canMoveIn()
-  |	canJumpIn()
-  |	canMoveTo()
-  |	canJumpTo()
-  |	not()
+	boolean conditionResult = false;
+}
+{
+	(
+	  conditionResult=facing()
+  |	conditionResult=canPut()
+  |	conditionResult=canPick()
+  |	conditionResult=canMoveIn()
+  |	conditionResult=canJumpIn()
+  |	conditionResult=canMoveTo()
+  |	conditionResult=canJumpTo()
+  |	conditionResult=not() ) { /*System.out.println(conditionResult);*/ return conditionResult; }
 }
 
-void facing():
-{}
+boolean facing():
 {
-	< FACING > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+	String direction = "";
+	boolean result = false;
+}
+{
+	< FACING > < COLON > direction=getCardinalDirection()
+	{
+	  if(direction.toLowerCase().equals("north")) { result = world.facingNorth(); }
+	  if(direction.toLowerCase().equals("south")) { result = world.facingSouth(); }
+	  if(direction.toLowerCase().equals("east")) { result = world.facingEast(); }
+	  if(direction.toLowerCase().equals("west")) { result = world.facingWest(); }
+	  return result;
+	}
 }
 
-void canPut():
-{}
+boolean canPut():
 {
- 	< CANPUT > < COLON > (< NUMBER > | < STRING >) < COMMA > (< CHIPS > | < BALLOONS >) 
+  int x = 0;
+  boolean result = false;
+}
+{
+ 	< CANPUT > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< CHIPS > | < BALLOONS >)
+ 	{
+ 	  if(token.image.toLowerCase().equals("balloons") && x <= world.getMyBalloons()) {
+		result = true;
+ 	  }
+ 	  if(token.image.toLowerCase().equals("chips") && x <= world.getMyChips()) {
+		result = true;
+ 	  }
+ 	  return result;
+ 	} 
 }
 
-void canPick():
-{}
+boolean canPick():
 {
-  	< CANPICK > <COLON> (<NUMBER> | <STRING>) <COMMA> (<CHIPS>|<BALLOONS>) 
+  int x = 0;
+  boolean result = false;
+}
+{
+  	< CANPICK > <COLON> ((x=charNumToInt() | x=getVariableValue())) <COMMA> (<CHIPS>|<BALLOONS>)
+ 	{
+ 	  if(token.image.toLowerCase().equals("balloons") && x <= world.countBalloons()) {
+		result = true;
+ 	  }
+ 	  return result;
+ 	}  
 }
 
-void canMoveIn():
+boolean canMoveIn():
 {}
 {
   < CANMOVEINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >) 
 }
 
-void canJumpIn():
+boolean canJumpIn():
 {}
 {
   < CANJUMPINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
 }
 
-void canMoveTo():
+boolean canMoveTo():
 {}
 {
   < CANMOVETOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < RIGHT > | < LEFT > | < BACK >) 
 }
 
-void canJumpTo():
+boolean canJumpTo():
 {}
 {
   < CANJUMPTOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < RIGHT > | < LEFT > | < BACK >) 
 }
 
-void not():
-{}
+boolean not():
 {
-  < NOT > < COLON > condition()
+  boolean conditionResult = false;
+  boolean result = false;
+}
+{
+  < NOT > < COLON > conditionResult=condition()
+  {
+    if(conditionResult) { result = false; }
+    else { result = true; }
+    return result;
+
+  }
 }
 
 void procedureCall() :
@@ -481,6 +529,19 @@ String getNormalDirection():
 	) { direction = token.image; return direction; }
 }
 
+String getCardinalDirection():
+{
+  String direction = "";
+}
+{
+  	(
+  	  	< NORTH > 
+  	  | < SOUTH >
+  	  | < EAST >
+  	  | < WEST >
+  	 ) { direction=token.image; return direction; }
+}
+
 void moveToTheLexer(int steps, String direction) :
 {
 	int facing = world.getFacing();
@@ -629,20 +690,23 @@ void turnDirection():
   	(< AROUND >| < RIGHT >| < LEFT >)
   	 {
   	   direction = token.image;
+
+		if(!inProcedureDefinition && conditionalCondition) { 
   	   
-		if(direction.toLowerCase().equals("around")) {
-			for (int i=0;i<4;i++) {
-			  	world.turnRight();
-			}
-    	}
-    	else if (direction.toLowerCase().equals("right")) {
-			world.turnRight();
-    	}
-    	else if (direction.toLowerCase().equals("left")) {
-			for (int i=0;i<3;i++) {
-			  	world.turnRight();
-			}
-    	}
+			if(direction.toLowerCase().equals("around")) {
+				for (int i=0;i<4;i++) {
+				  	world.turnRight();
+				}
+	    	}
+	    	else if (direction.toLowerCase().equals("right")) {
+				world.turnRight();
+	    	}
+	    	else if (direction.toLowerCase().equals("left")) {
+				for (int i=0;i<3;i++) {
+				  	world.turnRight();
+				}
+	    	}
+	  	}
 	 }
 }
 
