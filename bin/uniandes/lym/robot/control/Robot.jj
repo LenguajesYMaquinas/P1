@@ -210,8 +210,8 @@ void commandInstruction() :
 	| 	< FACE > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
 	| 	< PUT > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.putBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.putChips(x); }})
 	| 	< PICK > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.grabBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.pickChips(x); }})
-	| 	< MOVETOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >) { moveToTheLexer(x, "front");}
-	| 	< JUMPTOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< FRONT > | < LEFT > | < RIGHT > | < BACK >)
+	| 	< MOVETOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { moveToTheLexer(x, text);}
+	| 	< JUMPTOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { jumpToTheLexer(x, text);}
 	| 	< MOVEINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
 	|   < JUMPINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
 	| 	< NOP > <COLON >
@@ -219,7 +219,7 @@ void commandInstruction() :
 }
 
 void structureControl():
-{ }
+{}
 {
   		conditionalIf() 
 	| 	loop()
@@ -468,13 +468,25 @@ void isAProcedure():
   }
 }
 
+String getNormalDirection():
+{
+  String direction = "";
+}
+{
+  	(	  	  	< FRONT >
+		| 	< RIGHT >
+		| 	< LEFT >
+		| 	< BACK >
+	) { direction = token.image; return direction; }
+}
+
 void moveToTheLexer(int steps, String direction) :
 {
 	int facing = world.getFacing();
 }
 {
 	{
-		if(direction.toLowerCase() == "front") {
+		if(direction.toLowerCase().equals("front")) {
 			if(facing == 1) {
 			  while(steps > 0) {
 			   	world.down();
@@ -499,6 +511,112 @@ void moveToTheLexer(int steps, String direction) :
 			   	steps = steps-1;
 			  }
 			}
+		}
+		if(direction.toLowerCase().equals("left")) {
+		  System.out.println("---");
+			if(facing == 1) {
+			  while(steps > 0) {
+			   	world.right();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 2) {
+			  while(steps > 0) {
+			   	world.up();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 0) {
+			  while(steps > 0) {
+			   	world.left();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 3) {
+			  while(steps > 0) {
+			   	world.down();
+			   	steps = steps-1;
+			  }
+			}
+		}
+		if(direction.toLowerCase().equals("right")) {
+			if(facing == 1) {
+			  while(steps > 0) {
+			   	world.left();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 2) {
+			  while(steps > 0) {
+			   	world.down();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 0) {
+			  while(steps > 0) {
+			   	world.right();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 3) {
+			  while(steps > 0) {
+			   	world.up();
+			   	steps = steps-1;
+			  }
+			}
+		}
+		if(direction.toLowerCase().equals("back")) {
+			if(facing == 1) {
+			  while(steps > 0) {
+			   	world.up();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 2) {
+			  while(steps > 0) {
+			   	world.left();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 0) {
+			  while(steps > 0) {
+			   	world.down();
+			   	steps = steps-1;
+			  }
+			}
+			if(facing == 3) {
+			  while(steps > 0) {
+			   	world.right();
+			   	steps = steps-1;
+			  }
+			}
+		}
+	}
+}
+
+void jumpToTheLexer(int steps, String direction) :
+{
+	int facing = world.getFacing();
+}
+{
+	{
+		if(direction.toLowerCase().equals("front")) {
+			world.moveForward(steps,true);
+		}
+		if(direction.toLowerCase().equals("right")) {
+			world.turnRight();
+			world.moveForward(steps,true);
+		}
+		if(direction.toLowerCase().equals("back")) {
+			world.turnRight();
+			world.turnRight();
+			world.moveForward(steps,true);
+		}
+		if(direction.toLowerCase().equals("left")) {
+			world.turnRight();
+			world.turnRight();
+			world.turnRight();
+			world.moveForward(steps,true);
 		}
 	}
 }
