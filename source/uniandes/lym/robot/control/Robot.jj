@@ -198,6 +198,7 @@ void commandInstruction() :
   int x=0;
   int y=0;
   String text = "";
+  int direction = 0;
 }
 {
 		< HOP > < LPARENTHESIS > x=charNumToInt() < RPARENTHESIS > {if(!inProcedureDefinition) { world.moveForward(x,true); }}
@@ -206,14 +207,14 @@ void commandInstruction() :
 	|  	< MOVE > < COLON > (x=charNumToInt() | x=getVariableValue()) {if(!inProcedureDefinition) {world.moveForward(x,false);} }
 	| 	< ASSIGNTO > < COLON > x=charNumToInt() < COMMA > saveValueToVariable(x)
 	| 	< GOTO > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (y=charNumToInt() | y=getVariableValue()) {if(!inProcedureDefinition) {world.setPostion(x,y);} } 
-	| 	< TURN > < COLON > (< LEFT > | < RIGHT > | < AROUND >)
-	| 	< FACE > < COLON > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+	| 	< TURN > < COLON > (turnDirection())
+	| 	< FACE > < COLON >(x=getDirection()) {if(!inProcedureDefinition) {faceLexer(x); }}
 	| 	< PUT > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.putBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.putChips(x); }})
 	| 	< PICK > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< BALLOONS > {if(!inProcedureDefinition) {world.grabBalloons(x); }} | < CHIPS > {if(!inProcedureDefinition) {world.pickChips(x); }})
 	| 	< MOVETOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { moveToTheLexer(x, text);}
 	| 	< JUMPTOTHE > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > text=getNormalDirection() { jumpToTheLexer(x, text);}
-	| 	< MOVEINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
-	|   < JUMPINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+	| 	< MOVEINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (direction = getDirection()){if(!inProcedureDefinition) {faceLexer(direction); world.moveForward(x,false);}}
+	|   < JUMPINDIR > < COLON > (x=charNumToInt() | x=getVariableValue()) < COMMA > (direction = getDirection()){if(!inProcedureDefinition) {faceLexer(direction); world.moveForward(x,true);}} 
 	| 	< NOP > <COLON >
 	
 }
@@ -513,7 +514,6 @@ void moveToTheLexer(int steps, String direction) :
 			}
 		}
 		if(direction.toLowerCase().equals("left")) {
-		  System.out.println("---");
 			if(facing == 1) {
 			  while(steps > 0) {
 			   	world.right();
@@ -619,4 +619,105 @@ void jumpToTheLexer(int steps, String direction) :
 			world.moveForward(steps,true);
 		}
 	}
+}
+
+void turnDirection():
+{
+  String direction = "";
+}
+{
+  	(< AROUND >| < RIGHT >| < LEFT >)
+  	 {
+  	   direction = token.image;
+  	   
+		if(direction.toLowerCase().equals("around")) {
+			for (int i=0;i<4;i++) {
+			  	world.turnRight();
+			}
+    	}
+    	else if (direction.toLowerCase().equals("right")) {
+			world.turnRight();
+    	}
+    	else if (direction.toLowerCase().equals("left")) {
+			for (int i=0;i<3;i++) {
+			  	world.turnRight();
+			}
+    	}
+	 }
+}
+
+int getDirection():
+{
+  String direction; 
+}
+{
+  (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+  {
+    direction = token.image;
+    
+    if(direction.toLowerCase().equals("north")) {
+		return 0;
+    }
+    else if (direction.toLowerCase().equals("south")) {
+		return 1;
+    }
+    else if (direction.toLowerCase().equals("east")) {
+		return 2;
+    }
+    else if (direction.toLowerCase().equals("west")) {
+		return 3;
+    }
+    return -1;
+  }
+  
+}
+
+void faceLexer(int x):
+{
+  int timesOfTurnRight = 0;
+}
+{
+  {
+    int actualFacing = world.getFacing();
+	
+    if(actualFacing == 0 && x == 1) {
+		timesOfTurnRight = 2;
+   	}
+   	else if(actualFacing == 2 && x == 1) {
+		timesOfTurnRight = 1;
+  	}
+  	else if(actualFacing == 3 && x == 1) {
+		timesOfTurnRight = 3;
+  	}
+  	else if(actualFacing == 0 && x == 2) {
+		timesOfTurnRight = 1;
+   	}
+   	else if(actualFacing == 3 && x == 2) {
+		timesOfTurnRight = 2;
+  	}
+  	else if(actualFacing == 1 && x == 2) {
+		timesOfTurnRight = 3;
+  	}
+  	else if(actualFacing == 0 && x == 3) {
+		timesOfTurnRight = 3;
+   	}
+   	else if(actualFacing == 1 && x == 3) {
+		timesOfTurnRight = 1;
+  	}
+  	else if(actualFacing == 2 && x == 3) {
+		timesOfTurnRight = 2;
+  	}
+  	else if(actualFacing == 1 && x == 0) {
+		timesOfTurnRight = 2;
+   	}
+   	else if(actualFacing == 2 && x == 0) {
+		timesOfTurnRight = 3;
+  	}
+  	else if(actualFacing == 3 && x == 0) {
+		timesOfTurnRight = 1;
+  	}
+   	for(int i=0;i<timesOfTurnRight;i++) {
+		world.turnRight();
+  	}  
+  }
 }

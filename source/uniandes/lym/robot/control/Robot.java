@@ -212,6 +212,7 @@ public class Robot implements RobotConstants {
   int x=0;
   int y=0;
   String text = "";
+  int direction = 0;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case HOP:
       jj_consume_token(HOP);
@@ -290,37 +291,38 @@ public class Robot implements RobotConstants {
     case TURN:
       jj_consume_token(TURN);
       jj_consume_token(COLON);
+      turnDirection();
+      break;
+    case FACE:
+      jj_consume_token(FACE);
+      jj_consume_token(COLON);
+      x = getDirection();
+                                                      if(!inProcedureDefinition) {faceLexer(x); }
+      break;
+    case PUT:
+      jj_consume_token(PUT);
+      jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case LEFT:
-        jj_consume_token(LEFT);
+      case NUMBER:
+        x = charNumToInt();
         break;
-      case RIGHT:
-        jj_consume_token(RIGHT);
-        break;
-      case AROUND:
-        jj_consume_token(AROUND);
+      case STRING:
+        x = getVariableValue();
         break;
       default:
         jj_la1[13] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      break;
-    case FACE:
-      jj_consume_token(FACE);
-      jj_consume_token(COLON);
+      jj_consume_token(COMMA);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case NORTH:
-        jj_consume_token(NORTH);
+      case BALLOONS:
+        jj_consume_token(BALLOONS);
+                                                                                                     if(!inProcedureDefinition) {world.putBalloons(x); }
         break;
-      case SOUTH:
-        jj_consume_token(SOUTH);
-        break;
-      case EAST:
-        jj_consume_token(EAST);
-        break;
-      case WEST:
-        jj_consume_token(WEST);
+      case CHIPS:
+        jj_consume_token(CHIPS);
+                                                                                                                                                                       if(!inProcedureDefinition) {world.putChips(x); }
         break;
       default:
         jj_la1[14] = jj_gen;
@@ -328,8 +330,8 @@ public class Robot implements RobotConstants {
         throw new ParseException();
       }
       break;
-    case PUT:
-      jj_consume_token(PUT);
+    case PICK:
+      jj_consume_token(PICK);
       jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case NUMBER:
@@ -347,37 +349,6 @@ public class Robot implements RobotConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case BALLOONS:
         jj_consume_token(BALLOONS);
-                                                                                                     if(!inProcedureDefinition) {world.putBalloons(x); }
-        break;
-      case CHIPS:
-        jj_consume_token(CHIPS);
-                                                                                                                                                                       if(!inProcedureDefinition) {world.putChips(x); }
-        break;
-      default:
-        jj_la1[16] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      break;
-    case PICK:
-      jj_consume_token(PICK);
-      jj_consume_token(COLON);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case NUMBER:
-        x = charNumToInt();
-        break;
-      case STRING:
-        x = getVariableValue();
-        break;
-      default:
-        jj_la1[17] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      jj_consume_token(COMMA);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case BALLOONS:
-        jj_consume_token(BALLOONS);
                                                                                                       if(!inProcedureDefinition) {world.grabBalloons(x); }
         break;
       case CHIPS:
@@ -385,7 +356,7 @@ public class Robot implements RobotConstants {
                                                                                                                                                                          if(!inProcedureDefinition) {world.pickChips(x); }
         break;
       default:
-        jj_la1[18] = jj_gen;
+        jj_la1[16] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -401,7 +372,7 @@ public class Robot implements RobotConstants {
         x = getVariableValue();
         break;
       default:
-        jj_la1[19] = jj_gen;
+        jj_la1[17] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -420,7 +391,7 @@ public class Robot implements RobotConstants {
         x = getVariableValue();
         break;
       default:
-        jj_la1[20] = jj_gen;
+        jj_la1[18] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -439,29 +410,13 @@ public class Robot implements RobotConstants {
         x = getVariableValue();
         break;
       default:
-        jj_la1[21] = jj_gen;
+        jj_la1[19] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       jj_consume_token(COMMA);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case NORTH:
-        jj_consume_token(NORTH);
-        break;
-      case SOUTH:
-        jj_consume_token(SOUTH);
-        break;
-      case EAST:
-        jj_consume_token(EAST);
-        break;
-      case WEST:
-        jj_consume_token(WEST);
-        break;
-      default:
-        jj_la1[22] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
+      direction = getDirection();
+                                                                                                                         if(!inProcedureDefinition) {faceLexer(direction); world.moveForward(x,false);}
       break;
     case JUMPINDIR:
       jj_consume_token(JUMPINDIR);
@@ -474,36 +429,20 @@ public class Robot implements RobotConstants {
         x = getVariableValue();
         break;
       default:
-        jj_la1[23] = jj_gen;
+        jj_la1[20] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       jj_consume_token(COMMA);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case NORTH:
-        jj_consume_token(NORTH);
-        break;
-      case SOUTH:
-        jj_consume_token(SOUTH);
-        break;
-      case EAST:
-        jj_consume_token(EAST);
-        break;
-      case WEST:
-        jj_consume_token(WEST);
-        break;
-      default:
-        jj_la1[24] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
+      direction = getDirection();
+                                                                                                                     if(!inProcedureDefinition) {faceLexer(direction); world.moveForward(x,true);}
       break;
     case NOP:
       jj_consume_token(NOP);
       jj_consume_token(COLON);
       break;
     default:
-      jj_la1[25] = jj_gen;
+      jj_la1[21] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -521,7 +460,7 @@ public class Robot implements RobotConstants {
       repeat();
       break;
     default:
-      jj_la1[26] = jj_gen;
+      jj_la1[22] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -559,7 +498,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(STRING);
       break;
     default:
-      jj_la1[27] = jj_gen;
+      jj_la1[23] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -593,7 +532,7 @@ public class Robot implements RobotConstants {
       not();
       break;
     default:
-      jj_la1[28] = jj_gen;
+      jj_la1[24] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -616,7 +555,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(WEST);
       break;
     default:
-      jj_la1[29] = jj_gen;
+      jj_la1[25] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -633,7 +572,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(STRING);
       break;
     default:
-      jj_la1[30] = jj_gen;
+      jj_la1[26] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -646,7 +585,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(BALLOONS);
       break;
     default:
-      jj_la1[31] = jj_gen;
+      jj_la1[27] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -663,7 +602,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(STRING);
       break;
     default:
-      jj_la1[32] = jj_gen;
+      jj_la1[28] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -676,7 +615,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(BALLOONS);
       break;
     default:
-      jj_la1[33] = jj_gen;
+      jj_la1[29] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -693,7 +632,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(STRING);
       break;
     default:
-      jj_la1[34] = jj_gen;
+      jj_la1[30] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -712,7 +651,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(WEST);
       break;
     default:
-      jj_la1[35] = jj_gen;
+      jj_la1[31] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -729,7 +668,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(STRING);
       break;
     default:
-      jj_la1[36] = jj_gen;
+      jj_la1[32] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -748,7 +687,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(WEST);
       break;
     default:
-      jj_la1[37] = jj_gen;
+      jj_la1[33] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -765,7 +704,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(STRING);
       break;
     default:
-      jj_la1[38] = jj_gen;
+      jj_la1[34] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -784,7 +723,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(BACK);
       break;
     default:
-      jj_la1[39] = jj_gen;
+      jj_la1[35] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -801,7 +740,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(STRING);
       break;
     default:
-      jj_la1[40] = jj_gen;
+      jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -820,7 +759,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(BACK);
       break;
     default:
-      jj_la1[41] = jj_gen;
+      jj_la1[37] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -851,7 +790,7 @@ public class Robot implements RobotConstants {
                                                                                                                                                                           argumentCounter = argumentCounter+1;
         break;
       default:
-        jj_la1[42] = jj_gen;
+        jj_la1[38] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -862,7 +801,7 @@ public class Robot implements RobotConstants {
           ;
           break;
         default:
-          jj_la1[43] = jj_gen;
+          jj_la1[39] = jj_gen;
           break label_6;
         }
         jj_consume_token(COMMA);
@@ -876,14 +815,14 @@ public class Robot implements RobotConstants {
                                                                                                                                                                                                                                                                                                          argumentCounter = argumentCounter+1;
           break;
         default:
-          jj_la1[44] = jj_gen;
+          jj_la1[40] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
       }
       break;
     default:
-      jj_la1[45] = jj_gen;
+      jj_la1[41] = jj_gen;
       ;
     }
                                                                                                                                                                                                                                                                                                                                                       if(expectedArguments !=  argumentCounter) {{if (true) throw new Error("The expected arguments does not match with the recieved arguments.");}}
@@ -1010,7 +949,7 @@ public class Robot implements RobotConstants {
       jj_consume_token(BACK);
       break;
     default:
-      jj_la1[46] = jj_gen;
+      jj_la1[42] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1047,7 +986,6 @@ public class Robot implements RobotConstants {
                         }
                 }
                 if(direction.toLowerCase().equals("left")) {
-                  System.out.println("---");
                         if(facing == 1) {
                           while(steps > 0) {
                                 world.right();
@@ -1149,6 +1087,123 @@ public class Robot implements RobotConstants {
                 }
   }
 
+  final public void turnDirection() throws ParseException {
+  String direction = "";
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case AROUND:
+      jj_consume_token(AROUND);
+      break;
+    case RIGHT:
+      jj_consume_token(RIGHT);
+      break;
+    case LEFT:
+      jj_consume_token(LEFT);
+      break;
+    default:
+      jj_la1[43] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+           direction = token.image;
+
+                if(direction.toLowerCase().equals("around")) {
+                        for (int i=0;i<4;i++) {
+                                world.turnRight();
+                        }
+        }
+        else if (direction.toLowerCase().equals("right")) {
+                        world.turnRight();
+        }
+        else if (direction.toLowerCase().equals("left")) {
+                        for (int i=0;i<3;i++) {
+                                world.turnRight();
+                        }
+        }
+  }
+
+  final public int getDirection() throws ParseException {
+  String direction;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case NORTH:
+      jj_consume_token(NORTH);
+      break;
+    case SOUTH:
+      jj_consume_token(SOUTH);
+      break;
+    case EAST:
+      jj_consume_token(EAST);
+      break;
+    case WEST:
+      jj_consume_token(WEST);
+      break;
+    default:
+      jj_la1[44] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    direction = token.image;
+
+    if(direction.toLowerCase().equals("north")) {
+                {if (true) return 0;}
+    }
+    else if (direction.toLowerCase().equals("south")) {
+                {if (true) return 1;}
+    }
+    else if (direction.toLowerCase().equals("east")) {
+                {if (true) return 2;}
+    }
+    else if (direction.toLowerCase().equals("west")) {
+                {if (true) return 3;}
+    }
+    {if (true) return -1;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public void faceLexer(int x) throws ParseException {
+  int timesOfTurnRight = 0;
+    int actualFacing = world.getFacing();
+
+    if(actualFacing == 0 && x == 1) {
+                timesOfTurnRight = 2;
+        }
+        else if(actualFacing == 2 && x == 1) {
+                timesOfTurnRight = 1;
+        }
+        else if(actualFacing == 3 && x == 1) {
+                timesOfTurnRight = 3;
+        }
+        else if(actualFacing == 0 && x == 2) {
+                timesOfTurnRight = 1;
+        }
+        else if(actualFacing == 3 && x == 2) {
+                timesOfTurnRight = 2;
+        }
+        else if(actualFacing == 1 && x == 2) {
+                timesOfTurnRight = 3;
+        }
+        else if(actualFacing == 0 && x == 3) {
+                timesOfTurnRight = 3;
+        }
+        else if(actualFacing == 1 && x == 3) {
+                timesOfTurnRight = 1;
+        }
+        else if(actualFacing == 2 && x == 3) {
+                timesOfTurnRight = 2;
+        }
+        else if(actualFacing == 1 && x == 0) {
+                timesOfTurnRight = 2;
+        }
+        else if(actualFacing == 2 && x == 0) {
+                timesOfTurnRight = 3;
+        }
+        else if(actualFacing == 3 && x == 0) {
+                timesOfTurnRight = 1;
+        }
+        for(int i=0;i<timesOfTurnRight;i++) {
+                world.turnRight();
+        }
+  }
+
   /** Generated Token Manager. */
   public RobotTokenManager token_source;
   SimpleCharStream jj_input_stream;
@@ -1158,7 +1213,7 @@ public class Robot implements RobotConstants {
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[47];
+  final private int[] jj_la1 = new int[45];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -1166,10 +1221,10 @@ public class Robot implements RobotConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x21,0x40,0x80,0x0,0x0,0x0,0x0,0x0,0x0,0x80310000,0x0,0x0,0x0,0x80000300,0xf000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xf000,0x0,0xf000,0x80000000,0x310000,0x0,0x3fc00000,0xf000,0x0,0x0,0x0,0x0,0x0,0xf000,0x0,0xf000,0x0,0x80000d00,0x0,0x80000d00,0x0,0x0,0x0,0x0,0x80000d00,};
+      jj_la1_0 = new int[] {0x21,0x40,0x80,0x0,0x0,0x0,0x0,0x0,0x0,0x80310000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x310000,0x0,0x3fc00000,0xf000,0x0,0x0,0x0,0x0,0x0,0xf000,0x0,0xf000,0x0,0x80000d00,0x0,0x80000d00,0x0,0x0,0x0,0x0,0x80000d00,0x80000300,0xf000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x20000,0x20000,0x10000000,0x80000,0x10000000,0x80000,0x10007ff7,0x18000000,0x18000000,0x18000000,0x0,0x0,0x18000000,0x18000,0x18000000,0x18000,0x18000000,0x18000000,0x18000000,0x0,0x18000000,0x0,0x7ff7,0x0,0x18000000,0x0,0x0,0x18000000,0x18000,0x18000000,0x18000,0x18000000,0x0,0x18000000,0x0,0x18000000,0x0,0x18000000,0x0,0x18000000,0x20000,0x18000000,0x18000000,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x20000,0x20000,0x10000000,0x80000,0x10000000,0x80000,0x10007ff7,0x18000000,0x18000000,0x18000000,0x18000000,0x18000,0x18000000,0x18000,0x18000000,0x18000000,0x18000000,0x18000000,0x7ff7,0x0,0x18000000,0x0,0x0,0x18000000,0x18000,0x18000000,0x18000,0x18000000,0x0,0x18000000,0x0,0x18000000,0x0,0x18000000,0x0,0x18000000,0x20000,0x18000000,0x18000000,0x0,0x0,0x0,};
    }
 
   /** Constructor with InputStream. */
@@ -1183,7 +1238,7 @@ public class Robot implements RobotConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 45; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1197,7 +1252,7 @@ public class Robot implements RobotConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 45; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -1207,7 +1262,7 @@ public class Robot implements RobotConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 45; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1217,7 +1272,7 @@ public class Robot implements RobotConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 45; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -1226,7 +1281,7 @@ public class Robot implements RobotConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 45; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1235,7 +1290,7 @@ public class Robot implements RobotConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 45; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -1291,7 +1346,7 @@ public class Robot implements RobotConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 47; i++) {
+    for (int i = 0; i < 45; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
