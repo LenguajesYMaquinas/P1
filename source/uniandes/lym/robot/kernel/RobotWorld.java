@@ -548,7 +548,6 @@ public class RobotWorld {
 }
 
 	
-	
 	/** 
 	 * Modifies the wolrd's size without changing anything else. the 
 	 * size is decreased and the robots ends up outside the new dimensions, it is placed at the end of the world

@@ -1,3 +1,5 @@
+/* Sergio Franco, Juan Caraballo */
+
 options 
 {
   
@@ -316,27 +318,229 @@ boolean canPick():
 }
 
 boolean canMoveIn():
-{}
 {
-  < CANMOVEINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >) 
+  int x = 0;
+  int direction = 0;
+  boolean result = false;
+}
+{
+  < CANMOVEINDIR > < COLON > ((x=charNumToInt() | x=getVariableValue())) < COMMA > (direction = getDirection())
+  {
+		int coordenadaActualX = (int)world.getPosition().getX();
+		int coordenadaActualY = (int)world.getPosition().getY();
+
+		result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, direction);
+
+		return result;
+		
+   }  
 }
 
 boolean canJumpIn():
-{}
 {
-  < CANJUMPINDIR > < COLON > (< NUMBER > | < STRING >) < COMMA > (< NORTH > | < SOUTH > | < EAST > | < WEST >)
+  int x = 0;
+  int direction = 0;
+  boolean result = false;
+}
+{
+  < CANJUMPINDIR > < COLON > ((x=charNumToInt() | x=getVariableValue())) < COMMA > (direction = getDirection())
+  {
+		int coordenadaActualX = (int)world.getPosition().getX();
+
+		int coordenadaActualY = (int)world.getPosition().getY();
+
+		int nuevaPos = 0;
+		Point nuevoPunto = new Point(0, 0);
+
+		if(direction == 0) {
+			nuevaPos = coordenadaActualY + x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+		}
+		else if (direction == 1) {
+			nuevaPos = coordenadaActualY - x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+		}
+		else if (direction == 2) {
+			nuevaPos = coordenadaActualX + x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+		}	  
+		else if (direction == 3){
+			nuevaPos = coordenadaActualX - x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+		}
+
+		result = !(world.isBlocked(nuevoPunto));
+
+		return result;	
+	
+	}  
 }
 
 boolean canMoveTo():
-{}
 {
-  < CANMOVETOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < RIGHT > | < LEFT > | < BACK >) 
+  String direction = "";
+  int x = 0;
+  boolean result = false;
+
+}
+{
+  < CANMOVETOTHE > < COLON > ((x=charNumToInt() | x=getVariableValue())) < COMMA > (direction = getNormalDirection())
+  {
+    int actualFacing = world.getFacing();
+
+	int coordenadaActualX = (int)world.getPosition().getX();
+
+	int coordenadaActualY = (int)world.getPosition().getY();
+    
+    	if(actualFacing == 0 && direction.toLowerCase().equals("back")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 1);
+  		}
+	  	else if(actualFacing == 0 && direction.toLowerCase().equals("front")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 0);
+	 	}
+	 	else if(actualFacing == 0 && direction.toLowerCase().equals("right")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 2);
+	 	}
+	 	else if(actualFacing == 0 && direction.toLowerCase().equals("left")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 3);
+	 	}
+	
+	 	else if(actualFacing == 1 && direction.toLowerCase().equals("back")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 0);
+	  	}
+	  	else if(actualFacing == 1 && direction.toLowerCase().equals("front")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 1);
+	 	}
+	 	else if(actualFacing == 1 && direction.toLowerCase().equals("right")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 3);
+	 	}
+	 	else if(actualFacing == 1 && direction.toLowerCase().equals("left")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 2);
+	 	}
+	
+	 	else if(actualFacing == 2 && direction.toLowerCase().equals("right")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 1);
+	  	}
+	  	else if(actualFacing == 2 && direction.toLowerCase().equals("left")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 0);
+	 	}
+	 	else if(actualFacing == 2 && direction.toLowerCase().equals("front")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 2);
+	 	}
+	 	else if(actualFacing == 2 && direction.toLowerCase().equals("back")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 3);
+	 	}
+	
+	 	else if(actualFacing == 3 && direction.toLowerCase().equals("left")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 1);
+	  	}
+	  	else if(actualFacing == 3 && direction.toLowerCase().equals("right")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 0);
+	 	}
+	 	else if(actualFacing == 3 && direction.toLowerCase().equals("back")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 2);
+	 	}
+	 	else if(actualFacing == 3 && direction.toLowerCase().equals("front")) {
+			result = world.blockedInRange(coordenadaActualX, coordenadaActualY, x, 3);
+	 	}
+	 	
+ 		return !result;
+    
+  }
 }
 
 boolean canJumpTo():
-{}
 {
-  < CANJUMPTOTHE > < COLON > (< NUMBER > | < STRING >) < COMMA > (< FRONT > | < RIGHT > | < LEFT > | < BACK >) 
+  String direction = "";
+  int x = 0;
+  boolean result = false;
+}
+{
+  < CANJUMPTOTHE > < COLON > ((x=charNumToInt() | x=getVariableValue())) < COMMA > (direction = getNormalDirection())
+  {
+		int actualFacing = world.getFacing();
+
+    	int coordenadaActualX = (int)world.getPosition().getX();
+
+		int coordenadaActualY = (int)world.getPosition().getY();
+
+		int nuevaPos = 0;
+
+		Point nuevoPunto = new Point(0, 0);
+
+
+		if(actualFacing == 0 && direction.toLowerCase().equals("back")) {
+	      	nuevaPos = coordenadaActualY - x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+  		}
+	  	else if(actualFacing == 0 && direction.toLowerCase().equals("front")) {
+			nuevaPos = coordenadaActualY + x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+	 	}
+	 	else if(actualFacing == 0 && direction.toLowerCase().equals("right")) {
+			nuevaPos = coordenadaActualX + x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}
+	 	else if(actualFacing == 0 && direction.toLowerCase().equals("left")) {
+			nuevaPos = coordenadaActualX - x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}
+	
+	 	else if(actualFacing == 1 && direction.toLowerCase().equals("back")) {
+	      	nuevaPos = coordenadaActualY + x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+	  	}
+	  	else if(actualFacing == 1 && direction.toLowerCase().equals("front")) {
+			nuevaPos = coordenadaActualY - x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+	 	}
+	 	else if(actualFacing == 1 && direction.toLowerCase().equals("right")) {
+			nuevaPos = coordenadaActualX - x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}
+	 	else if(actualFacing == 1 && direction.toLowerCase().equals("left")) {
+			nuevaPos = coordenadaActualX + x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}
+	
+	 	else if(actualFacing == 2 && direction.toLowerCase().equals("right")) {
+	      	nuevaPos = coordenadaActualY - x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+	  	}
+	  	else if(actualFacing == 2 && direction.toLowerCase().equals("left")) {
+			nuevaPos = coordenadaActualY + x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+		}		
+	 	else if(actualFacing == 2 && direction.toLowerCase().equals("front")) {
+			nuevaPos = coordenadaActualX + x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}
+	 	else if(actualFacing == 2 && direction.toLowerCase().equals("back")) {
+			nuevaPos = coordenadaActualX - x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}
+	
+	 	else if(actualFacing == 3 && direction.toLowerCase().equals("left")) {
+	      	nuevaPos = coordenadaActualY - x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+	  	}
+	  	else if(actualFacing == 3 && direction.toLowerCase().equals("right")) {
+			nuevaPos = coordenadaActualY + x;
+			nuevoPunto = new Point(coordenadaActualX, nuevaPos);
+	 	}
+	 	else if(actualFacing == 3 && direction.toLowerCase().equals("back")) {
+			nuevaPos = coordenadaActualX + x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}
+	 	else if(actualFacing == 3 && direction.toLowerCase().equals("front")) {
+			nuevaPos = coordenadaActualX - x;
+			nuevoPunto = new Point(nuevaPos, coordenadaActualY);
+	 	}			
+
+		result = world.isBlocked(nuevoPunto);
+
+		return !result;
+  }
 }
 
 boolean not():
@@ -522,7 +726,8 @@ String getNormalDirection():
   String direction = "";
 }
 {
-  	(	  	  	< FRONT >
+  	(
+	  	  	< FRONT >
 		| 	< RIGHT >
 		| 	< LEFT >
 		| 	< BACK >
